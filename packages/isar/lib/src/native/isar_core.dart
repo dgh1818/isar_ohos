@@ -74,16 +74,16 @@ FutureOr<void> initializeCoreBinary({
 }
 
 Future<String> loadSoFile() async {
-  // 鑾峰彇搴旂敤鏀寔鐩綍
-  final dir = await getApplicationSupportDirectory(); // 浣跨敤 await 鑾峰彇 Directory 瀵硅薄
+  // 获取应用支持目录
+  final dir = await getApplicationSupportDirectory(); // 使用 await 获取 Directory 对象
   final filePath = '${dir.path}/libs/arm64-v8a/libisar.so';
 
-  // 妫�鏌ユ枃浠舵槸鍚﹀凡瀛樺湪
+  // 检查文件是否已存在
   final file = File(filePath);
   if (!file.existsSync()) {
-    // 浣跨敤 rootBundle 鍔犺浇 assets 鏂囦欢
-    final byteData = await rootBundle.load('assets/libs/arm64-v8a/libisar.so'); // 浣跨敤 await 鑾峰彇 ByteData 瀵硅薄
-    await file.writeAsBytes(byteData.buffer.asUint8List()); // 鍐欏叆鏂囦欢
+    // 使用 rootBundle 加载 assets 文件
+    final byteData = await rootBundle.load('assets/libs/arm64-v8a/libisar.so'); // 使用 await 获取 ByteData 对象
+    await file.writeAsBytes(byteData.buffer.asUint8List()); // 写入文件
   }
 
   return filePath;
