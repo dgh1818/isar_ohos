@@ -3,11 +3,14 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import 'package:isar/isar.dart';
 import 'package:isar/src/native/bindings.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 
 const Id isarMinId = -9223372036854775807;
 
@@ -37,7 +40,7 @@ const nullBool = IsarObject_NULL_BOOL;
 const falseBool = IsarObject_FALSE_BOOL;
 const trueBool = IsarObject_TRUE_BOOL;
 
-const String _githubUrl = 'https://github.com/isar/isar/releases/download';
+const String _githubUrl = 'https://gitee.com/du_guang/isar/releases/download';
 
 bool _isarInitialized = false;
 
@@ -51,37 +54,39 @@ late final Pointer<NativeFinalizerFunction> isarQueryFree;
 FutureOr<void> initializeCoreBinary({
   Map<Abi, String> libraries = const {},
   bool download = false,
-}) {
+}) async{
+
   if (_isarInitialized) {
     return null;
   }
 
-  String? libraryPath;
-  if (!Platform.isIOS) {
-    libraryPath = libraries[Abi.current()] ?? Abi.current().localName;
-  }
 
   try {
-    _initializePath(libraryPath);
+    String? soPath=await loadSoFile();
+    _initializePath(soPath);
   } catch (e) {
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      final downloadPath = _getLibraryDownloadPath(libraries);
-      if (download) {
-        return _downloadIsarCore(downloadPath).then((value) {
-          _initializePath(downloadPath);
-        });
-      } else {
-        // try to use the binary at the download path anyway
-        _initializePath(downloadPath);
-      }
-    } else {
       throw IsarError(
         'Could not initialize IsarCore library for processor architecture '
-        '"${Abi.current()}". If you create a Flutter app, make sure to add '
+        '"${Abi.current().localName}". If you create a Flutter app, make sure to add '
         'isar_flutter_libs to your dependencies.\n$e',
       );
-    }
   }
+}
+
+Future<String> loadSoFile() async {
+  // 获取应用支持目录
+  final dir = await getApplicationSupportDirectory(); // 使用 await 获取 Directory 对象
+  final filePath = '${dir.path}/libs/arm64-v8a/libisar.so';
+
+  // 检查文件是否已存在
+  final file = File(filePath);
+  if (!file.existsSync()) {
+    // 使用 rootBundle 加载 assets 文件
+    final byteData = await rootBundle.load('assets/libs/arm64-v8a/libisar.so'); // 使用 await 获取 ByteData 对象
+    await file.writeAsBytes(byteData.buffer.asUint8List()); // 写入文件
+  }
+
+  return filePath;
 }
 
 void _initializePath(String? libraryPath) {
@@ -206,6 +211,8 @@ extension on Abi {
         return 'libisar.dylib';
       case Abi.linuxX64:
         return 'libisar.so';
+      case Abi.ohosArm64:
+      	return 'libisar.so';
       case Abi.windowsArm64:
       case Abi.windowsX64:
         return 'isar.dll';
@@ -228,6 +235,8 @@ extension on Abi {
         return 'isar_windows_arm64.dll';
       case Abi.windowsX64:
         return 'isar_windows_x64.dll';
+      case Abi.ohosArm64:
+      	return 'libisar_ohos_arm64-v8a.so';
     }
     throw UnimplementedError();
   }
