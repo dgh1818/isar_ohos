@@ -35,6 +35,7 @@ class _WebAbi {
   static const macosX64 = null as dynamic;
   static const windowsArm64 = null as dynamic;
   static const windowsX64 = null as dynamic;
+  static const ohosArm64 = null as dynamic;
 }
 
 /// @nodoc
