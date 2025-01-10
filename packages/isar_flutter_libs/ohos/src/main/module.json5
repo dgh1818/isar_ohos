@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "isar_flutter_libs",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}
