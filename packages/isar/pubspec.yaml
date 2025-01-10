@@ -15,8 +15,19 @@ dependencies:
   ffi: ">=2.0.0 <3.0.0"
   js: ^0.6.4
   meta: ^1.7.0
+  path: ^1.8.1
 
 dev_dependencies:
   ffigen: ">=6.1.2 <8.0.0"
   test: ^1.21.1
   very_good_analysis: ^3.0.1
+
+dependency_overrides:
+  path_provider:
+    git:
+      url: https://gitee.com/openharmony-sig/flutter_packages.git
+      path: "packages/path_provider/path_provider"
+
+flutter:
+ assets:
+    - assets/libs/arm64-v8a/libisar.so
