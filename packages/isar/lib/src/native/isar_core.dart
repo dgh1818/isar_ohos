@@ -113,7 +113,7 @@ void _initializePath(String? libraryPath) {
 String _getLibraryDownloadPath(Map<Abi, String> libraries) {
   final providedPath = libraries[Abi.linuxX64];
 
-  return providedPath;
+  return providedPath!;
  
 }
 
