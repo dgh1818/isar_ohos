@@ -28,6 +28,3 @@ dependency_overrides:
       url: https://gitee.com/openharmony-sig/flutter_packages.git
       path: "packages/path_provider/path_provider"
 
-flutter:
- assets:
-    - assets/libs/arm64-v8a/libisar.so
