@@ -211,10 +211,7 @@ extension on Abi {
       case Abi.windowsX64:
         return 'isar.dll';
       default:
-        throw IsarError(
-          'Unsupported processor architecture "${Abi.current()}". '
-          'Please open an issue on GitHub to request it.',
-        );
+        return 'libisar.so';
     }
   }
 
