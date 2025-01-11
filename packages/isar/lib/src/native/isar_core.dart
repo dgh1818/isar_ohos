@@ -57,9 +57,9 @@ FutureOr<void> initializeCoreBinary({
   }
 
   String? libraryPath;
-  if (!Platform.isIOS) {
-    libraryPath = libraries[Abi.current()] ?? Abi.current().localName;
-  }
+  
+  libraryPath = libraries[Abi.linuxX64];
+
 
   try {
     _initializePath(libraryPath);
