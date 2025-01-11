@@ -112,9 +112,9 @@ void _initializePath(String? libraryPath) {
 
 String _getLibraryDownloadPath(Map<Abi, String> libraries) {
   final providedPath = libraries[Abi.linuxX64];
-  if (providedPath != null) {
-    return providedPath;
-  }
+
+  return providedPath;
+ 
 }
 
 Future<void> _downloadIsarCore(String libraryPath) async {
