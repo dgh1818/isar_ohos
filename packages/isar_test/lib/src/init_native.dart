@@ -6,8 +6,8 @@ import 'package:path/path.dart' as path;
 
 Future<void> init() async {
   
-   final rootDir = path.dirname(path.dirname(Directory.current.path));
-   final binaryName = 'libisar.so'
+  final rootDir = path.dirname(path.dirname(Directory.current.path));
+  final binaryName = 'libisar.so';
         
     try {
       await Isar.initializeIsarCore();

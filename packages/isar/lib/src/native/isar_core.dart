@@ -111,22 +111,9 @@ void _initializePath(String? libraryPath) {
 }
 
 String _getLibraryDownloadPath(Map<Abi, String> libraries) {
-  final providedPath = libraries[Abi.current()];
+  final providedPath = libraries[Abi.linuxX64];
   if (providedPath != null) {
     return providedPath;
-  } else {
-    final name = Abi.current().localName;
-    if (Platform.script.path.isEmpty) {
-      return name;
-    }
-    var dir = Platform.script.pathSegments
-        .sublist(0, Platform.script.pathSegments.length - 1)
-        .join(Platform.pathSeparator);
-    if (!Platform.isWindows) {
-      // Not on windows, add leading platform path separator
-      dir = '${Platform.pathSeparator}$dir';
-    }
-    return '$dir${Platform.pathSeparator}$name';
   }
 }
 
@@ -137,7 +124,7 @@ Future<void> _downloadIsarCore(String libraryPath) async {
     return;
   }
   final remoteName = Abi.current().remoteName;
-  final uri = Uri.parse('$_githubUrl/${Isar.version}/$remoteName');
+  final uri = Uri.parse('https://gitee.com/du_guang/isar/releases/download/v3.1.0+1/isar_ohos_arm64.so');
   final request = await HttpClient().getUrl(uri);
   final response = await request.close();
   if (response.statusCode != 200) {
