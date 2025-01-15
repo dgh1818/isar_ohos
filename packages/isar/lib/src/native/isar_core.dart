@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:ffi/ffi.dart';
 import 'package:isar/isar.dart';
@@ -48,49 +49,45 @@ typedef FinalizerFunction = void Function(Pointer<Void> token);
 late final Pointer<NativeFinalizerFunction> isarClose;
 late final Pointer<NativeFinalizerFunction> isarQueryFree;
 
+
 FutureOr<void> initializeCoreBinary({
-  Map<Abi, String> libraries = const {},
+  Map<Abi, String> libraries = const {Abi.linuxX64: "libisar.so"},
   bool download = false,
 }) {
   if (_isarInitialized) {
     return null;
   }
 
-  String? libraryPath;
-  
-  libraryPath = libraries[Abi.linuxX64];
+  String? libraryPath = libraries[Abi.linuxX64];
 
 
   try {
     _initializePath(libraryPath);
   } catch (e) {
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      final downloadPath = _getLibraryDownloadPath(libraries);
-      if (download) {
-        return _downloadIsarCore(downloadPath).then((value) {
-          _initializePath(downloadPath);
-        });
-      } else {
-        // try to use the binary at the download path anyway
-        _initializePath(downloadPath);
-      }
-    } else {
       throw IsarError(
+        'Could not initialize IsarCore library for processor architecture '
+        '"${libraries[Abi.linuxX64]}". If you create a Flutter app, make sure to add '
         'Could not initialize IsarCore library for processor architecture '
         '"${Abi.current()}". If you create a Flutter app, make sure to add '
         'isar_flutter_libs to your dependencies.\n$e',
       );
-    }
   }
 }
 
 void _initializePath(String? libraryPath) {
   late DynamicLibrary dylib;
-  if (Platform.isIOS) {
-    dylib = DynamicLibrary.process();
-  } else {
-    dylib = DynamicLibrary.open(libraryPath!);
+  
+  //dylib = defaultOpen();
+
+  dylib = DynamicLibrary.open('libisar.so');
+
+  if(dylib==null){
+    throw IsarError(
+      'dylib null'
+    );
   }
+
+  
 
   final bindings = IsarCoreBindings(dylib);
 
@@ -104,8 +101,11 @@ void _initializePath(String? libraryPath) {
     );
   }
 
+  print("binding");
   IC = bindings;
+  print("binding ok");
   isarClose = dylib.lookup('isar_instance_close');
+  print("lookup");
   isarQueryFree = dylib.lookup('isar_q_free');
   _isarInitialized = true;
 }
@@ -178,6 +178,29 @@ Stream<void> wrapIsarPort(ReceivePort port) {
 extension PointerX on Pointer {
   @pragma('vm:prefer-inline')
   bool get isNull => address == 0;
+}
+
+
+
+DynamicLibrary defaultOpen() {
+ 
+  
+  try {
+    return DynamicLibrary.open('libisar.so');
+    // ignore: avoid_catching_errors
+  } on ArgumentError {
+    // On some (especially old) Android devices, we somehow can't dlopen
+    // libraries shipped with the apk. We need to find the full path of the
+    // library (/data/data/<id>/lib/libsqlite3.so) and open that one.
+    // For details, see https://github.com/simolus3/moor/issues/420
+    final appIdAsBytes = File('/proc/self/cmdline').readAsBytesSync();
+
+    // app id ends with the first \0 character in here.
+    final endOfAppId = max(appIdAsBytes.indexOf(0), 0);
+    final appId = String.fromCharCodes(appIdAsBytes.sublist(0, endOfAppId));
+
+    return DynamicLibrary.open('/data/data/$appId/lib/libisar.so');
+  }
 }
 
 extension on Abi {

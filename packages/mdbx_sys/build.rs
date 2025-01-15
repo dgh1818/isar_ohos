@@ -2,71 +2,15 @@ use bindgen::callbacks::{IntKind, ParseCallbacks};
 use std::process::Command;
 use std::{env, fs, path::PathBuf};
 
-#[derive(Debug)]
-struct Callbacks;
-
-impl ParseCallbacks for Callbacks {
-    fn int_macro(&self, name: &str, _value: i64) -> Option<IntKind> {
-        match name {
-            "MDBX_SUCCESS"
-            | "MDBX_KEYEXIST"
-            | "MDBX_NOTFOUND"
-            | "MDBX_PAGE_NOTFOUND"
-            | "MDBX_CORRUPTED"
-            | "MDBX_PANIC"
-            | "MDBX_VERSION_MISMATCH"
-            | "MDBX_INVALID"
-            | "MDBX_MAP_FULL"
-            | "MDBX_DBS_FULL"
-            | "MDBX_READERS_FULL"
-            | "MDBX_TLS_FULL"
-            | "MDBX_TXN_FULL"
-            | "MDBX_CURSOR_FULL"
-            | "MDBX_PAGE_FULL"
-            | "MDBX_MAP_RESIZED"
-            | "MDBX_INCOMPATIBLE"
-            | "MDBX_BAD_RSLOT"
-            | "MDBX_BAD_TXN"
-            | "MDBX_BAD_VALSIZE"
-            | "MDBX_BAD_DBI"
-            | "MDBX_LOG_DONTCHANGE"
-            | "MDBX_DBG_DONTCHANGE"
-            | "MDBX_RESULT_TRUE"
-            | "MDBX_UNABLE_EXTEND_MAPSIZE"
-            | "MDBX_PROBLEM"
-            | "MDBX_LAST_LMDB_ERRCODE"
-            | "MDBX_BUSY"
-            | "MDBX_EMULTIVAL"
-            | "MDBX_EBADSIGN"
-            | "MDBX_WANNA_RECOVERY"
-            | "MDBX_EKEYMISMATCH"
-            | "MDBX_TOO_LARGE"
-            | "MDBX_THREAD_MISMATCH"
-            | "MDBX_TXN_OVERLAPPING"
-            | "MDBX_LAST_ERRCODE" => Some(IntKind::Int),
-            _ => Some(IntKind::UInt),
-        }
-    }
-}
-
-const LIBMDBX_REPO: &str = "https://github.com/isar/libmdbx.git";
-const LIBMDBX_TAG: &str = "v0.12.4";
-
 fn main() {
+    
     println!("cargo:rerun-if-changed=build.rs");
     env::set_var("IPHONEOS_DEPLOYMENT_TARGET", "11.0");
 
     let is_android = env::var("CARGO_CFG_TARGET_OS").unwrap() == "android";
+    
+    println!("cargo:rustc-link-lib=c++");
 
-    let _ = fs::remove_dir_all("libmdbx");
-
-    Command::new("git")
-        .arg("clone")
-        .arg(LIBMDBX_REPO)
-        .arg("--branch")
-        .arg(LIBMDBX_TAG)
-        .output()
-        .unwrap();
 
     Command::new("make")
         .arg("release-assets")
@@ -81,18 +25,17 @@ fn main() {
     let core_path = mdbx.join("mdbx.c");
     let mut core = fs::read_to_string(core_path.as_path()).unwrap();
     core = core.replace("!CharToOemBuffA(buf, buf, size)", "false");
-    if is_android {
-        core = core.replace(
-            "memset(ior, -1, sizeof(osal_ioring_t))",
-            "memset(ior, 0, sizeof(osal_ioring_t))",
-        );
-        core = core.replace("unlikely(linux_kernel_version < 0x04000000)", "false");
-        core = core.replace(
-            "assert(linux_kernel_version >= 0x03060000);",
-            "if (linux_kernel_version >= 0x03060000) return MDBX_SUCCESS;
-            __fallthrough",
-        );
-    }
+   
+    core = core.replace(
+        "memset(ior, -1, sizeof(osal_ioring_t))",
+        "memset(ior, 0, sizeof(osal_ioring_t))",
+    );
+    core = core.replace("unlikely(linux_kernel_version < 0x04000000)", "false");
+    core = core.replace(
+         "assert(linux_kernel_version >= 0x03060000);",
+         "if (linux_kernel_version >= 0x03060000) return MDBX_SUCCESS;
+         __fallthrough",
+    );
     fs::write(core_path.as_path(), core).unwrap();
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -161,3 +104,58 @@ fn main() {
             .compile("libmdbx.a");
     }
 }
+
+
+
+
+#[derive(Debug)]
+struct Callbacks;
+
+impl ParseCallbacks for Callbacks {
+    fn int_macro(&self, name: &str, _value: i64) -> Option<IntKind> {
+        match name {
+            "MDBX_SUCCESS"
+            | "MDBX_KEYEXIST"
+            | "MDBX_NOTFOUND"
+            | "MDBX_PAGE_NOTFOUND"
+            | "MDBX_CORRUPTED"
+            | "MDBX_PANIC"
+            | "MDBX_VERSION_MISMATCH"
+            | "MDBX_INVALID"
+            | "MDBX_MAP_FULL"
+            | "MDBX_DBS_FULL"
+            | "MDBX_READERS_FULL"
+            | "MDBX_TLS_FULL"
+            | "MDBX_TXN_FULL"
+            | "MDBX_CURSOR_FULL"
+            | "MDBX_PAGE_FULL"
+            | "MDBX_MAP_RESIZED"
+            | "MDBX_INCOMPATIBLE"
+            | "MDBX_BAD_RSLOT"
+            | "MDBX_BAD_TXN"
+            | "MDBX_BAD_VALSIZE"
+            | "MDBX_BAD_DBI"
+            | "MDBX_LOG_DONTCHANGE"
+            | "MDBX_DBG_DONTCHANGE"
+            | "MDBX_RESULT_TRUE"
+            | "MDBX_UNABLE_EXTEND_MAPSIZE"
+            | "MDBX_PROBLEM"
+            | "MDBX_LAST_LMDB_ERRCODE"
+            | "MDBX_BUSY"
+            | "MDBX_EMULTIVAL"
+            | "MDBX_EBADSIGN"
+            | "MDBX_WANNA_RECOVERY"
+            | "MDBX_EKEYMISMATCH"
+            | "MDBX_TOO_LARGE"
+            | "MDBX_THREAD_MISMATCH"
+            | "MDBX_TXN_OVERLAPPING"
+            | "MDBX_LAST_ERRCODE" => Some(IntKind::Int),
+            _ => Some(IntKind::UInt),
+        }
+    }
+}
+
+const LIBMDBX_REPO: &str = "https://github.com/isar/libmdbx.git";
+const LIBMDBX_TAG: &str = "v0.12.4";
+
+

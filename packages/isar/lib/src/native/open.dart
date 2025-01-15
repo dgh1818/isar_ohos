@@ -79,6 +79,7 @@ Future<Isar> openIsar({
   CompactCondition? compactOnLaunch,
 }) async {
   initializeCoreBinary();
+  //defaultOpen();
   IC.isar_connect_dart_api(NativeApi.postCObject.cast());
 
   return using((Arena alloc) async {
