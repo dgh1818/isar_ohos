@@ -1,0 +1,7 @@
+In file included from mdbx.h:184,
+                 from mdbx.c:140:
+/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/sysroot/usr/include/stdarg.h:10:10: fatal error: bits/alltypes.h: 没有那个文件或目录
+   10 | #include <bits/alltypes.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+make[1]: *** [GNUmakefile:274：mdbx-static.o] 错误 1

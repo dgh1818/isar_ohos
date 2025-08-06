@@ -1,0 +1,1 @@
+MDBX_BUILD_CXX=YES -DNDEBUG=1 -fPIC -I/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/sysroot/usr/include -L/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/sysroot/usr/lib/aarch64-linux-ohos -Wl,--gc-sections,-z,relro,-O1 -lm -lrt

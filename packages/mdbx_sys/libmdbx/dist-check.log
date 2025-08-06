@@ -1,0 +1,15 @@
+make[1]: 进入目录“/home/dgh18/Downloads/fluttertpc_isar/packages/mdbx_sys/libmdbx/dist-check”
+// The GNU Make 4.2.1
+// TIP: Use `make V=1` for verbose.
+  MDBX_BUILD_OPTIONS   = -DNDEBUG=1
+  MDBX_BUILD_CXX       = YES
+  MDBX_BUILD_TIMESTAMP = 2025-08-06T13:24:38+0800
+// TIP: Use `make options` to listing available build options.
+  CXX      =/usr/bin/g++ | g++ (Ubuntu 13.1.0-8ubuntu1~20.04.2) 13.1.0
+  CXXFLAGS =-fPIC -I/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/sysroot/usr/include  -L/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/sysroot/usr/lib/aarch64-linux-ohos
+  LDFLAGS  =-Wl,--gc-sections,-z,relro,-O1  -lm -lrt -pthread
+// TIP: Use `make help` to listing available targets.
+  CLEAN for build with specified flags... Ok
+  MAKE config.h
+  CC mdbx-static.o
+make[1]: 离开目录“/home/dgh18/Downloads/fluttertpc_isar/packages/mdbx_sys/libmdbx/dist-check”
