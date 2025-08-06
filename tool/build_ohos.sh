@@ -13,7 +13,7 @@ fi
 #COMPILER_DIR="$NDK/toolchains/llvm/prebuilt/$NDK_HOST_TAG/bin"
 #export PATH="$COMPILER_DIR:$PATH"
 
-COMPILER_DIR="/home/dgh18/commandline-tools-linux-x64-5.0.5.310/command-line-tools/sdk/default/openharmony/native/llvm/bin"
+COMPILER_DIR="/home/dgh18/commandline-tools-linux-x64/command-line-tools/sdk/default/openharmony/native/llvm/bin"
 export PATH="$COMPILER_DIR:$PATH"
 export CMAKE_OHOS_ARCH_ABI="arm64-v8a"
 
