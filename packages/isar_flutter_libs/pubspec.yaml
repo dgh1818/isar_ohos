@@ -27,3 +27,6 @@ flutter:
         pluginClass: IsarFlutterLibsPlugin
       windows:
         pluginClass: IsarFlutterLibsPlugin
+      ohos:
+        package: dev.isar.isar_flutter_libs
+        pluginClass: IsarFlutterLibsPlugin

@@ -1,0 +1,16 @@
+[package]
+name = "mdbx-sys"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+name = "mdbx_sys"
+
+[dependencies]
+libc = "0.2"
+ohos-node-bindgen = '6.0.2'
+socket2 = "0.4.9"
+
+
+[patch.crates-io]
+socket2 = { path = "/home/dgh18/fluttertpc_isar/tool/socket2" }

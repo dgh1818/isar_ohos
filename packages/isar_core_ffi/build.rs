@@ -1,6 +1,7 @@
 use std::{env, fs::File, io::Write, path::Path};
 
 fn main() {
+    println!("cargo:rustc-link-lib=c++");
     let out_dir = env::var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("version.rs");
     let mut f = File::create(&dest_path).unwrap();

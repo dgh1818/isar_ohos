@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:ffi/ffi.dart';
 import 'package:isar/isar.dart';
@@ -37,7 +38,7 @@ const nullBool = IsarObject_NULL_BOOL;
 const falseBool = IsarObject_FALSE_BOOL;
 const trueBool = IsarObject_TRUE_BOOL;
 
-const String _githubUrl = 'https://github.com/isar/isar/releases/download';
+const String _githubUrl = 'https://gitee.com/du_guang/isar/releases';
 
 bool _isarInitialized = false;
 
@@ -49,47 +50,36 @@ late final Pointer<NativeFinalizerFunction> isarClose;
 late final Pointer<NativeFinalizerFunction> isarQueryFree;
 
 FutureOr<void> initializeCoreBinary({
-  Map<Abi, String> libraries = const {},
+  Map<Abi, String> libraries = const {Abi.linuxX64: "libisar.so"},
   bool download = false,
 }) {
   if (_isarInitialized) {
     return null;
   }
 
-  String? libraryPath;
-  if (!Platform.isIOS) {
-    libraryPath = libraries[Abi.current()] ?? Abi.current().localName;
-  }
+  String? libraryPath = libraries[Abi.linuxX64];
 
   try {
     _initializePath(libraryPath);
   } catch (e) {
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      final downloadPath = _getLibraryDownloadPath(libraries);
-      if (download) {
-        return _downloadIsarCore(downloadPath).then((value) {
-          _initializePath(downloadPath);
-        });
-      } else {
-        // try to use the binary at the download path anyway
-        _initializePath(downloadPath);
-      }
-    } else {
       throw IsarError(
+        'Could not initialize IsarCore library for processor architecture '
+        '"${libraries[Abi.linuxX64]}". If you create a Flutter app, make sure to add '
         'Could not initialize IsarCore library for processor architecture '
         '"${Abi.current()}". If you create a Flutter app, make sure to add '
         'isar_flutter_libs to your dependencies.\n$e',
       );
-    }
   }
 }
 
 void _initializePath(String? libraryPath) {
   late DynamicLibrary dylib;
-  if (Platform.isIOS) {
-    dylib = DynamicLibrary.process();
-  } else {
-    dylib = DynamicLibrary.open(libraryPath!);
+  dylib = DynamicLibrary.open('libisar.so');
+
+  if(dylib==null){
+    throw IsarError(
+      'dylib null'
+    );
   }
 
   final bindings = IsarCoreBindings(dylib);
@@ -104,6 +94,7 @@ void _initializePath(String? libraryPath) {
     );
   }
 
+
   IC = bindings;
   isarClose = dylib.lookup('isar_instance_close');
   isarQueryFree = dylib.lookup('isar_q_free');
@@ -111,23 +102,9 @@ void _initializePath(String? libraryPath) {
 }
 
 String _getLibraryDownloadPath(Map<Abi, String> libraries) {
-  final providedPath = libraries[Abi.current()];
-  if (providedPath != null) {
-    return providedPath;
-  } else {
-    final name = Abi.current().localName;
-    if (Platform.script.path.isEmpty) {
-      return name;
-    }
-    var dir = Platform.script.pathSegments
-        .sublist(0, Platform.script.pathSegments.length - 1)
-        .join(Platform.pathSeparator);
-    if (!Platform.isWindows) {
-      // Not on windows, add leading platform path separator
-      dir = '${Platform.pathSeparator}$dir';
-    }
-    return '$dir${Platform.pathSeparator}$name';
-  }
+  final providedPath = libraries[Abi.linuxX64];
+  return providedPath!;
+ 
 }
 
 Future<void> _downloadIsarCore(String libraryPath) async {
@@ -137,7 +114,7 @@ Future<void> _downloadIsarCore(String libraryPath) async {
     return;
   }
   final remoteName = Abi.current().remoteName;
-  final uri = Uri.parse('$_githubUrl/${Isar.version}/$remoteName');
+  final uri = Uri.parse('https://gitee.com/du_guang/isar/releases/download/v3.1.0+1/isar_ohos_arm64.so');
   final request = await HttpClient().getUrl(uri);
   final response = await request.close();
   if (response.statusCode != 200) {
@@ -210,10 +187,7 @@ extension on Abi {
       case Abi.windowsX64:
         return 'isar.dll';
       default:
-        throw IsarError(
-          'Unsupported processor architecture "${Abi.current()}". '
-          'Please open an issue on GitHub to request it.',
-        );
+        return 'libisar.so';
     }
   }
 
@@ -223,11 +197,13 @@ extension on Abi {
       case Abi.macosX64:
         return 'libisar_macos.dylib';
       case Abi.linuxX64:
-        return 'libisar_linux_x64.so';
+        return 'isar_ohos_arm64.so';
       case Abi.windowsArm64:
         return 'isar_windows_arm64.dll';
       case Abi.windowsX64:
         return 'isar_windows_x64.dll';
+      default:
+        return 'isar_ohos_arm64.so';
     }
     throw UnimplementedError();
   }
